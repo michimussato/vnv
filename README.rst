@@ -34,10 +34,13 @@ VNV
 ===
 
 
-    Add a short description here!
+    Brings `venv`s to the world of AL packages!
 
 
-A longer description of your project goes here...
+A project to bring the `venv` world to AL packages. Then name derives
+from the my envy for standard and pythonic ways to create dynamic
+development environments that `venv`s bring to the table.
+Reads /ˈvi:.en.vi/.
 
 
 .. _pyscaffold-notes:
