@@ -25,6 +25,14 @@ _logger = logging.getLogger(__name__)
 PYTHONS_BASE = "/film/tools/packages/python"
 
 
+# setup
+# git clone
+# git checkout
+# vanilla shell (python2.7)
+# python vnv/src/vnv/py2/vnv2.py install
+# vnv2 --help
+
+
 def install():
     file_path = os.path.realpath(__file__)
     try:
