@@ -360,11 +360,11 @@ def get_python_dict_from_exe(exe):
     return matches[0]
 
 
-def create_venv(py_dict, venv_home, venv_name):
-    if isinstance(py_dict, str):
-        py_dict = ast.literal_eval(py_dict)
+def create_venv(python_dict, venv_home, venv_name):
+    if isinstance(python_dict, str):
+        python_dict = ast.literal_eval(python_dict)
     venv = os.path.join(venv_home, venv_name)
-    env = launch_python(python_dict=py_dict, m="venv {venv}".format(venv=venv))
+    env = launch_python(python_dict=python_dict, m="venv {venv}".format(venv=venv))
 
     activate = os.path.join(venv, "al_activate")
 
@@ -454,6 +454,7 @@ def parse_args(args):
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py install
     subparser__setup = subparsers.add_parser(
         "install",
+        help="Writes a symlink to `~/.local/bin`.",
     )
 
     # Example
@@ -461,10 +462,13 @@ def parse_args(args):
     # vnv2 uninstall
     subparser__setup = subparsers.add_parser(
         "uninstall",
+        help="Deletes the symlink in `~/.local/bin`.",
     )
 
     subparser__list_pythons = subparsers.add_parser(
         "list-pythons",
+        help="List all Python executables in `{PYTHONS_BASE}` "
+             "and present them as `python_dict`.".format(PYTHONS_BASE=PYTHONS_BASE),
     )
 
     # Examples
@@ -472,6 +476,8 @@ def parse_args(args):
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py filter-versions -get "(3,7,5)" -blt "(3,7,5,2)"
     subparser__filter_versions = subparsers.add_parser(
         "filter-versions",
+        help="Search for a specif range of versions "
+             "in the `python_dict`s list.",
     )
     # subparser__filter_versions.add_argument(
     #     "-p",
@@ -487,7 +493,7 @@ def parse_args(args):
         dest="equal_or_greater_than",
         type=str,
         required=True,
-        help="Greater or equal than i.e. '(3,5,9)'"
+        help="Greater or equal than `tuple`, i.e. '(3,5,9)'",
     )
     subparser__filter_versions.add_argument(
         "-blt",
@@ -495,11 +501,14 @@ def parse_args(args):
         dest="but_less_than",
         type=str,
         required=True,
-        help="But less than i.e. '(3,11)'"
+        help="But less than `tuple`, i.e. '(3,11)'",
     )
 
     subparser__launch_python = subparsers.add_parser(
-        "launch-python"
+        "launch-python",
+        help="Run a Python interpreter from a `python_dict`. "
+             "Optionally run a package `-m` or a "
+             "command `-c`.",
     )
     subparser__launch_python.add_argument(
         "-p",
@@ -507,9 +516,10 @@ def parse_args(args):
         type=str,
         required=True,
         dest="python_dict",
+        help="Python represented in `python_dict`.",
     )
     group = subparser__launch_python.add_mutually_exclusive_group(
-        required=True,
+        required=False,
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py launch-python -c 'import os;print(os.environ)' -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}"
@@ -518,7 +528,7 @@ def parse_args(args):
         type=str,
         required=False,
         dest="c",
-        help="As in python -c 'import os;print(os.environ);print(os.getcwd())'"
+        help="As in `python -c 'import os;print(os.environ);print(os.getcwd())'`.",
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py launch-python -m 'venv /home/users/michaelmus/.venv1234' -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}"
@@ -528,11 +538,12 @@ def parse_args(args):
         type=str,
         required=False,
         dest="m",
-        help="As in python -m 'venv /path/to/venv'"
+        help="As in `python -m 'venv /path/to/venv'`.",
     )
 
     subparser__get_pythonpaths_from_preset = subparsers.add_parser(
         "get-pythonpaths-from-preset",
+        help="Extract `PYTHONPATH` from a resolved Launcher Preset.",
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
@@ -542,11 +553,13 @@ def parse_args(args):
         type=str,
         required=True,
         dest="launcher_preset",
-        help="i.e '/toolsets/personal/michaelmus/012_Maya_performance_production'"
+        help="The full path to the Launcher Preset, "
+             "i.e '/toolsets/personal/michaelmus/012_Maya_performance_production'",
     )
 
     subparser__get_python_dict_from_exe = subparsers.add_parser(
         "get-python-dict-from-exe",
+        help="Resolve a Python executable path into a `python_dict`.",
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
@@ -556,12 +569,15 @@ def parse_args(args):
         type=str,
         required=True,
         dest="exe",
-        help="Get python_dict representation of any python exe on the file system. "
-             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9'"
+        help="Get the `python_dict` representation of any python exe on the file system. "
+             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9'",
     )
 
     subparser__pythonpath_to_txt = subparsers.add_parser(
-        "pythonpath-to-txt"
+        "pythonpath-to-txt",
+        help="Parse individual `PYTHONPATH` items from a json file "
+             "(i.e. created by `get-pythonpaths-from-preset` into a "
+             "single `str` and write it to file.",
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py pythonpath-to-txt -p /tmp/tmpjVI8zK.json
@@ -571,23 +587,26 @@ def parse_args(args):
         type=str,
         dest="pythonpath",
         required=True,
-        help="specify path to json file that contains the pythonpaths. "
-             "i.e. from get_pythonpaths_from_preset()"
+        help="Specify path to json file that contains the pythonpaths. "
+             "i.e. from `get-pythonpaths-from-preset`.",
     )
 
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}" -vh "/home/users/michaelmus/temp" -vn "my-new-venv"
     # vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}" -vh "/home/users/michaelmus/temp" -vn "my-new-venv"
     subparser__create_venv = subparsers.add_parser(
-        "create-venv"
+        "create-venv",
+        help="Create a `venv` based on a `python_dict` Python "
+             "representation (Python 3+).",
     )
     subparser__create_venv.add_argument(
         "-p",
-        "--py-dict",
+        "--python-dict",
         required=True,
         type=str,
-        dest="py_dict",
-        help="",
+        dest="python_dict",
+        help="The Python interpreter represented as "
+             "`python_dict`.",
     )
     subparser__create_venv.add_argument(
         "-vh",
@@ -595,7 +614,8 @@ def parse_args(args):
         required=True,
         type=str,
         dest="venv_home",
-        help="/path/to/venvs/parent/",
+        help="The full path to the parent directory "
+             "i.e. `/path/to/venvs/parent/`.",
     )
     subparser__create_venv.add_argument(
         "-vn",
@@ -603,7 +623,9 @@ def parse_args(args):
         required=True,
         type=str,
         dest="venv_name",
-        help="venv-name",
+        help="The name of the `venv` that will be created "
+             "within the `--venv-home`, i.e. "
+             "`my-new-venv`.",
     )
 
     # parser__base.add_argument(
@@ -712,7 +734,7 @@ def main(args):
     if args.sub_command == "create-venv":
         print "create-venv"
         result = create_venv(
-            py_dict=args.py_dict,
+            python_dict=args.python_dict,
             venv_home=args.venv_home,
             venv_name=args.venv_name,
         )
