@@ -41,7 +41,11 @@ def install():
         _logger.debug("Directoy already exists: {e}".format(e=e))
 
     dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv2")
-    os.symlink(file_path, dst)
+
+    try:
+        os.symlink(file_path, dst)
+    except OSError as e:
+        _logger.debug("Symlink already exists: {e}".format(e=e))
     os.chmod(dst, 0o755)
 
 
