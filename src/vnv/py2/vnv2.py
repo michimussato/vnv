@@ -254,9 +254,9 @@ with open(\"{out_json}\", "w") as fw:
             # _logger.info(decode(line))
 
         sys.stdout.writelines(
-            "Result:\n"
-            "cmd = {cmd}:\n"
-            "{json_out}\n".format(
+            "# Result:\n"
+            "# cmd = {cmd}\n"
+            "# {json_out}\n".format(
                 cmd=cmd,
                 json_out=json_out.name,
             )
@@ -325,9 +325,9 @@ with open(\"{out_json}\", "w") as fw:
             # _logger.info(decode(line))
 
         sys.stdout.writelines(
-            "Result:\n"
-            "cmd = {cmd}:\n"
-            "{json_out}\n".format(
+            "# Result:\n"
+            "# cmd = {cmd}:\n"
+            "# {json_out}\n".format(
                 cmd=cmd,
                 json_out=json_out.name,
             )
@@ -337,6 +337,13 @@ with open(\"{out_json}\", "w") as fw:
 
 
 def get_python_dict_from_exe(exe):
+    # exe can be a path to the executable
+    # or a json file created using get-pythonpaths-from-preset
+
+    if str(exe).endswith(".json"):
+        with open(exe, "r") as fr:
+            exe = json.load(fr)["PYTHON_EXE"]
+
     pythons = list_pythons()
 
     matches = []
@@ -357,8 +364,8 @@ def get_python_dict_from_exe(exe):
         raise Exception("Too many matches.")
 
     sys.stdout.writelines(
-        "Result:\n"
-        "{match}\n".format(match=matches[0])
+        "# Result:\n"
+        "# {match}\n".format(match=matches[0])
     )
 
     return matches[0]
@@ -397,15 +404,29 @@ def create_venv(python_dict, venv_home, venv_name):
     with open(pycharm_exe, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("source {activate}\n".format(activate=activate))
-        fw.write("{pycharm_sh};\n".format(pycharm_sh=pycharm_sh))
+        fw.write("/usr/bin/sh {pycharm_sh};\n".format(pycharm_sh=pycharm_sh))
         fw.write("exit 0\n")
 
     os.chmod(pycharm_exe, 0o0744)
 
+    vscode_exe = os.path.join(venv, "vscode")
+    vscode_sh = "/usr/bin/code"
+
+    with open(vscode_exe, "w") as fw:
+        fw.write("#!/bin/sh\n")
+        fw.write("source {activate}\n".format(activate=activate))
+        fw.write("{vscode_sh};\n".format(vscode_sh=vscode_sh))
+        fw.write("exit 0\n")
+
+    os.chmod(vscode_exe, 0o0744)
+
     sys.stdout.writelines(
-        "Result:\n"
-        "{venv}\n"
-        "activate: source {activate}\n".format(
+        "# Result:\n"
+        "# {venv}\n"
+        # Todo: python: /home/users/michaelmus/venvs/my-new-virtualenv/python
+        # Todo: pycharm: /home/users/michaelmus/venvs/my-new-virtualenv/pycharm
+        # Todo: vscode: /home/users/michaelmus/venvs/my-new-virtualenv/vscode
+        "# activate: source {activate}\n".format(
             venv=venv,
             activate=activate,
         )
@@ -480,7 +501,7 @@ def parse_args(args):
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py filter-versions -get "(3,7,5)" -blt "(3,7,5,2)"
     subparser__filter_versions = subparsers.add_parser(
         "filter-versions",
-        help="Search for a specif range of versions "
+        help="Search for a specific range of versions "
              "in the `python_dict`s list.",
     )
     # subparser__filter_versions.add_argument(
@@ -551,6 +572,7 @@ def parse_args(args):
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
+    # vnv2 get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
     subparser__get_pythonpaths_from_preset.add_argument(
         "-p",
         "--preset",
@@ -566,7 +588,8 @@ def parse_args(args):
         help="Resolve a Python executable path into a `python_dict`.",
     )
     # Example
-    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
+    # vnv2 get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
+    # vnv2 get-python-dict-from-exe -e "/tmp/tmp3D6Ndj.json"  Todo: separate flag
     subparser__get_python_dict_from_exe.add_argument(
         "-e",
         "--exe",
@@ -574,7 +597,9 @@ def parse_args(args):
         required=True,
         dest="exe",
         help="Get the `python_dict` representation of any python exe on the file system. "
-             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9'",
+             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9',"
+             "or use `--exe` to specify a `.json` file that was created "
+             "using `get-pythonpaths-from-preset`.",
     )
 
     subparser__pythonpath_to_txt = subparsers.add_parser(
@@ -706,16 +731,27 @@ def main(args):
         pprint.pprint(result)
 
     if args.sub_command == "launch-python":
-        if args.c is not None:
+        if not all(
+                [
+                    args.c,
+                    args.m,
+                ],
+        ):
             launch_python(
                 python_dict=args.python_dict,
-                c=args.c,
             )
-        elif args.m is not None:
-            launch_python(
-                python_dict=args.python_dict,
-                m=args.m
-            )
+
+        else:
+            if args.c is not None:
+                launch_python(
+                    python_dict=args.python_dict,
+                    c=args.c,
+                )
+            elif args.m is not None:
+                launch_python(
+                    python_dict=args.python_dict,
+                    m=args.m
+                )
 
     if args.sub_command == "get-pythonpaths-from-preset":
         print "get-pythonpaths-from-preset"
