@@ -13,6 +13,8 @@ import logging
 import argparse
 import ast
 
+# from ...vnv import __version__
+
 __author__ = "Michael Mussato"
 __copyright__ = "Michael Mussato"
 __license__ = "MIT"
@@ -23,13 +25,21 @@ _logger = logging.getLogger(__name__)
 PYTHONS_BASE = "/film/tools/packages/python"
 
 
-def setup():
+def install():
     file_path = os.path.realpath(__file__)
     try:
         os.makedirs(os.path.join(os.path.expanduser("~"), ".local", "bin"))
     except OSError as e:
         _logger.debug("Directoy already exists: {e}".format(e=e))
-    os.symlink(file_path, os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv2"))
+
+    dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv2")
+    os.symlink(file_path, dst)
+    os.chmod(dst, 0o755)
+
+
+def uninstall():
+    dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv2")
+    os.remove(dst)
 
 
 def _parse_pythons():
@@ -432,8 +442,17 @@ def parse_args(args):
         dest="sub_command",
     )
 
+    # Example
+    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py install
     subparser__setup = subparsers.add_parser(
-        "setup",
+        "install",
+    )
+
+    # Example
+    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py uninstall
+    # vnv2 uninstall
+    subparser__setup = subparsers.add_parser(
+        "uninstall",
     )
 
     subparser__list_pythons = subparsers.add_parser(
@@ -550,6 +569,7 @@ def parse_args(args):
 
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}" -vh "/home/users/michaelmus/temp" -vn "my-new-venv"
+    # vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}" -vh "/home/users/michaelmus/temp" -vn "my-new-venv"
     subparser__create_venv = subparsers.add_parser(
         "create-venv"
     )
@@ -578,32 +598,11 @@ def parse_args(args):
         help="venv-name",
     )
 
-    # subparser__list_pythons.set_defaults(func=list_pythons)
-
-
-
-    # add_sub_parser__create_venv(subparsers)
-    # add_sub_parser__upgrade_pip(subparsers)
-    # add_sub_parser__pip_install(subparsers)
-    # add_sub_parser__enter_venv(subparsers)
-    # add_sub_parser__list_venvs(subparsers)
-    # add_sub_parser__pip_freeze(subparsers)
-
     # parser__base.add_argument(
-    #     # "-v",
-    #     "--setup",
-    #     dest="setup",
-    #     help="Setup",
-    #     action="store_true",
-    #     # default=False,
-    #     # const=True,
+    #     "--version",
+    #     action="version",
+    #     version="VNV {version}".format(version=__version__),
     # )
-
-    parser__base.add_argument(
-        "--version",
-        action="version",
-        # version=f"VNV {__version__}",
-    )
 
     parser__base.add_argument(
         "-v",
@@ -649,12 +648,13 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
 
-    # print args.setup
+    if args.sub_command == "install":
+        print "install"
+        install()
 
-    if args.sub_command == "setup":
-        # print args.setup
-        print "setup"
-        setup()
+    if args.sub_command == "uninstall":
+        print "uninstall"
+        uninstall()
 
     if args.sub_command == "list-pythons":
         print "list-pythons"
@@ -664,7 +664,7 @@ def main(args):
     if args.sub_command == "filter-versions":
         print "filter-versions"
         result = filter_version(
-            # pythons=args.pythons,
+            # Todo: pythons=args.pythons,
             pythons=list_pythons(),
             equal_or_greater_than=args.equal_or_greater_than,
             but_less_than=args.but_less_than,
@@ -688,22 +688,18 @@ def main(args):
         result = get_pythonpaths_from_preset(
             launcher_preset=args.launcher_preset,
         )
-        # pprint.pprint(result)
 
     if args.sub_command == "get-python-dict-from-exe":
         print "get-python-dict-from-exe"
         result = get_python_dict_from_exe(
             exe=args.exe,
         )
-        # pprint.pprint(result)
-        # pprint.pprint(result)
 
     if args.sub_command == "pythonpath-to-txt":
         print "pythonpath-to-txt"
         result = pythonpath_to_txt(
             pythonpath=args.pythonpath,
         )
-        # print result
 
     if args.sub_command == "create-venv":
         print "create-venv"
@@ -712,48 +708,6 @@ def main(args):
             venv_home=args.venv_home,
             venv_name=args.venv_name,
         )
-
-
-
-    # if args.sub_command == "create-venv":
-    #     _logger.debug("Subcommand: create-venv...")
-    #     create_venv()
-    #     _logger.debug("Subcommand: create-venv done.")
-    #
-    # if args.sub_command == "upgrade-pip":
-    #     _logger.debug("Subcommand: upgrade-pip...")
-    #     upgrade_pip(venv_dir=args.upgrade_pip)
-    #     _logger.debug("Subcommand: upgrade-pip done.")
-    #
-    # if args.sub_command == "pip-install-from-requirements":
-    #     _logger.debug("Subcommand: pip-install-from-requirements...")
-    #     pip_install_from_requirements(
-    #         venv_dir=args.venv_dir,
-    #         requirements=args.install_from_requirements,
-    #     )
-    #     _logger.debug("Subcommand: pip-install-from-requirements done.")
-    #
-    # if args.sub_command == "pip-install-packages":
-    #     _logger.debug("Subcommand: pip-install-packages...")
-    #     pip_install_packages(
-    #         venv_dir=args.venv_dir,
-    #         packages=args.install_packages,
-    #     )
-    #     _logger.debug("Subcommand: pip-install-packages done.")
-    #
-    # if args.sub_command == "enter-venv":
-    #     _logger.debug("Subcommand: enter-venv...")
-    #     enter_venv(
-    #         venv_dir=args.venv_dir,
-    #     )
-    #     _logger.debug("Subcommand: enter-venv done.")
-    #
-    # if args.sub_command == "list-venvs":
-    #     _logger.debug("Subcommand: list-venvs...")
-    #     list_venvs(
-    #         base_dir=args.base_dir,
-    #     )
-    #     _logger.debug("Subcommand: list-venvs done.")
 
 
 def run():
@@ -766,53 +720,6 @@ def run():
 
 if __name__ == "__main__":
     run()
-    # import pprint
-        # # pythons = list_pythons()
-        # # # pprint.pprint(pythons)
-        # #
-        # # python_filtered = filter_version(pythons, (3, 9), (3, 10))
-        # #
-        # # # for python in pythons:
-        # #
-        # # pprint.pprint(python_filtered)
-        #
-        # # python = list(filter(lambda d: d['version'] == 25, pythons))
-        # #
-        # # launch_python(python_filtered[-1])
-        # json_out = get_pythonpaths_from_preset(launcher_preset="/toolsets/personal/michaelmus/012_Maya_performance_production")
-        # # py_exe = json_out["PYTHON_EXE"]
-        # py_dict = get_python_dict_from_exe("/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9")
-        #
-        # #######################
-        # with open(json_out, "r") as fr:
-        #     data = json.load(fr)
-        # py_dict = get_python_dict_from_exe(data["PYTHON_EXE"])
-        # python_paths = data["PYTHONPATH"]
-        #
-        # pythonpath_txt = pythonpath_to_txt(pythonpath=python_paths)
-        #
-        # create_venv(
-        #     py_dict=py_dict,
-        #     venv_home="/home/users/michaelmus/git/repos/AL_Sandbox/michaelmus/test_venv",
-        #     venv_name="test5",
-        # )
-        #
-        # print pythonpath_txt
-        #
-        # #######################
-        #
-        #
-        # # launch_python(python_dict=py_dict, c="import os;print(os.environ);print(os.getcwd())")
-        #
-        # # create_venv(
-        # #     py_dict=py_dict,
-        # #     venv_home="/home/users/michaelmus/git/repos/AL_Sandbox/michaelmus/test_venv",
-        # #     venv_name="test1",
-        # # )
-        #
-        # # json_out = get_pythonpaths_from_packages(packages="python,AL_otio")
-        # # print json_out
-
     # next steps
     #
     # source /home/users/michaelmus/git/repos/AL_Sandbox/michaelmus/test_venv/test5/al_activate
