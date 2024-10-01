@@ -593,12 +593,12 @@ def parse_args(args):
 
     subparser__get_python_dict_from_exe = subparsers.add_parser(
         "get-python-dict-from-exe",
-        help="Resolve a Python executable path into a `python_dict`.",
+        help="Parse a JSON file or directly resolve a Python "
+             "executable path into a `python_dict`.",
     )
     # Example
     # vnv2 get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
-    # vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"  Todo: separate flag
-
+    # vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
     group__subparser__get_python_dict_from_exe = subparser__get_python_dict_from_exe.add_mutually_exclusive_group(
         required=False,
     )
