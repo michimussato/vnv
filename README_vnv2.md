@@ -162,7 +162,7 @@ popd
 ##### Install AL Packages
 
 ```
-python /home/users/michaelmus/git/repos/vnv/src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.txt.wMXPGW
+python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.txt.wMXPGW
 ```
 
 #### IDE
