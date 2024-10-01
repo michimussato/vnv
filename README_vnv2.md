@@ -58,7 +58,6 @@ python src/vnv/py2/vnv2.py install
 ```
 vnv2 --help
 usage: vnv2.py [-h] [-v] [-vv]
-               
                {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
                ...
 
@@ -76,14 +75,15 @@ subcommands:
     list-pythons        List all Python executables in
                         `/film/tools/packages/python` and present them as
                         `python_dict`.
-    filter-versions     Search for a specif range of versions in the
+    filter-versions     Search for a specific range of versions in the
                         `python_dict`s list.
     launch-python       Run a Python interpreter from a `python_dict`.
                         Optionally run a package `-m` or a command `-c`.
     get-pythonpaths-from-preset
                         Extract `PYTHONPATH` from a resolved Launcher Preset.
     get-python-dict-from-exe
-                        Resolve a Python executable path into a `python_dict`.
+                        Parse a JSON file or directly resolve a Python
+                        executable path into a `python_dict`.
     pythonpath-to-txt   Parse individual `PYTHONPATH` items from a json file
                         (i.e. created by `get-pythonpaths-from-preset` into a
                         single `str` and write it to file.
