@@ -93,20 +93,20 @@ subcommands:
 
 ```
 vnv2 get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
-# Result: /tmp/tmp3D6Ndj.json
+# Result: /tmp/pythonpaths.tmp3D6Ndj.json
 ```
 
 ### Save PYTHONPATH to Text File
 
 ```
-vnv2 pythonpath-to-txt -p /tmp/tmp3D6Ndj.json
-# Result: /tmp/pythonpath.txt.wMXPGW
+vnv2 pythonpath-to-txt -p /tmp/pythonpaths.tmp3D6Ndj.json
+# Result: /tmp/pythonpath.wMXPGW.txt
 ```
 
 ### Get `python_dict` from Executable or JSON File
 
 ```
-vnv2 get-python-dict-from-exe -e "/tmp/tmp3D6Ndj.json"
+vnv2 get-python-dict-from-exe -e "/tmp/pythonpaths.tmp3D6Ndj.json"
 # Result: {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
 ```
 
@@ -162,7 +162,7 @@ popd
 ##### Install AL Packages
 
 ```
-python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.txt.wMXPGW
+python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.wMXPGW.txt
 ```
 
 #### IDE
@@ -189,3 +189,10 @@ in your IDE:
 ```
 /home/users/michaelmus/venvs/my-new-virtualenv/vscode
 ```
+
+#### Deactivate `venv`
+
+```
+deactivate
+```
+

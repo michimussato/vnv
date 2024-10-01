@@ -208,6 +208,7 @@ def get_pythonpaths_from_preset(launcher_preset):
         json_out = tempfile.NamedTemporaryFile(
             mode="w",
             delete=False,
+            prefix="pythonpaths.",
             suffix=".json",
         )
 
@@ -441,7 +442,8 @@ def pythonpath_to_txt(pythonpath):
             pythonpath = json.load(fr)["PYTHONPATH"]
     with tempfile.NamedTemporaryFile(
         mode="w",
-        prefix="pythonpath.txt.",
+        prefix="pythonpath.",
+        suffix=".txt",
         delete=False,
     ) as fw:
         fw.write(os.pathsep.join(pythonpath))
@@ -589,7 +591,7 @@ def parse_args(args):
     )
     # Example
     # vnv2 get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
-    # vnv2 get-python-dict-from-exe -e "/tmp/tmp3D6Ndj.json"  Todo: separate flag
+    # vnv2 get-python-dict-from-exe -e "/tmp/pythonpaths.tmp3D6Ndj.json"  Todo: separate flag
     subparser__get_python_dict_from_exe.add_argument(
         "-e",
         "--exe",
@@ -609,7 +611,7 @@ def parse_args(args):
              "single `str` and write it to file.",
     )
     # Example
-    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py pythonpath-to-txt -p /tmp/tmpjVI8zK.json
+    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py pythonpath-to-txt -p /tmp/pythonpaths.tmpjVI8zK.json
     subparser__pythonpath_to_txt.add_argument(
         "-p",
         "--pythonpath",
@@ -799,6 +801,6 @@ if __name__ == "__main__":
     # pushd /home/users/michaelmus/git/repos/vnv
     # pip install -e .
     # popd
-    # python /home/users/michaelmus/git/repos/vnv/src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.txt.NbtqlL
+    # python /home/users/michaelmus/git/repos/vnv/src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.NbtqlL.txt
     # pycharm: /home/users/michaelmus/git/repos/AL_Sandbox/michaelmus/test_venv/test5/pycharm
 
