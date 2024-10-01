@@ -2,7 +2,7 @@
 * [Setup](#setup)
   * [Clone Repo](#clone-repo)
   * [Vanilla AL Shell](#vanilla-al-shell)
-  * [Install vnv2](#install-vnv2)
+  * [Install `vnv2` (Python 2)](#install-vnv2-python-2)
   * [Guides](#guides)
     * [Get PYTHONPATHs from Launcher Preset](#get-pythonpaths-from-launcher-preset)
     * [Save PYTHONPATH to Text File](#save-pythonpath-to-text-file)
@@ -14,13 +14,14 @@
       * [Activate `venv`](#activate-venv)
       * [PIP](#pip)
         * [Upgrade PIP](#upgrade-pip)
-        * [Install vnv (Python 3)](#install-vnv-python-3)
+        * [Install `vnv` (Python 3)](#install-vnv-python-3)
         * [Install AL Packages](#install-al-packages)
       * [IDE](#ide)
         * [Python Interpreter](#python-interpreter)
         * [Launch Scripts](#launch-scripts-)
           * [PyCharm](#pycharm)
           * [VsCode](#vscode)
+      * [Deactivate `venv`](#deactivate-venv)
 <!-- TOC -->
 
 ---
@@ -45,7 +46,7 @@ $ which python
 /usr/bin/python
 ```
 
-## Install vnv2
+## Install `vnv2` (Python 2)
 
 ```
 python src/vnv/py2/vnv2.py install
@@ -106,7 +107,7 @@ vnv2 pythonpath-to-txt -p /tmp/pythonpaths.tmp3D6Ndj.json
 ### Get `python_dict` from Executable or JSON File
 
 ```
-vnv2 get-python-dict-from-exe -e "/tmp/pythonpaths.tmp3D6Ndj.json"
+vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
 # Result: {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
 ```
 
@@ -151,7 +152,7 @@ pip install wheel wheel-filename
 pip install six marshmallow requests future brotli numpy distro simplejson
 ```
 
-##### Install vnv (Python 3)
+##### Install `vnv` (Python 3)
 
 ```
 pushd $(dirname $(dirname $(dirname $(dirname $(readlink $(which vnv2))))))

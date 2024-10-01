@@ -337,13 +337,19 @@ with open(\"{out_json}\", "w") as fw:
         return json_out.name
 
 
-def get_python_dict_from_exe(exe):
-    # exe can be a path to the executable
-    # or a json file created using get-pythonpaths-from-preset
+def get_python_dict_from_exe(exe=None, jsn=None):
 
-    if str(exe).endswith(".json"):
-        with open(exe, "r") as fr:
-            exe = json.load(fr)["PYTHON_EXE"]
+    if all([exe, jsn]) or not any([exe, jsn]):
+        raise Exception("Specify EITHER --exe OR --jsn, "
+                        "not none or both.")
+
+    _exe = None
+
+    if jsn is not None:
+        with open(jsn, "r") as fr:
+            _exe = json.load(fr)["PYTHON_EXE"]
+    elif exe is not None:
+        _exe = exe
 
     pythons = list_pythons()
 
@@ -356,7 +362,7 @@ def get_python_dict_from_exe(exe):
             variant=python["variant"],
         )
 
-        if re.match(regex, exe) is not None:
+        if re.match(regex, _exe) is not None:
             matches.append(copy.deepcopy(python))
 
     if not bool(matches):
@@ -545,12 +551,12 @@ def parse_args(args):
         dest="python_dict",
         help="Python represented in `python_dict`.",
     )
-    group = subparser__launch_python.add_mutually_exclusive_group(
+    group__subparser__launch_python = subparser__launch_python.add_mutually_exclusive_group(
         required=False,
     )
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py launch-python -c 'import os;print(os.environ)' -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}"
-    group.add_argument(
+    group__subparser__launch_python.add_argument(
         "-c",
         type=str,
         required=False,
@@ -560,7 +566,7 @@ def parse_args(args):
     # Example
     # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py launch-python -m 'venv /home/users/michaelmus/.venv1234' -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3', 'version_tuple': (3, 9, 7, 3)}"
     # {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
-    group.add_argument(
+    group__subparser__launch_python.add_argument(
         "-m",
         type=str,
         required=False,
@@ -591,16 +597,28 @@ def parse_args(args):
     )
     # Example
     # vnv2 get-python-dict-from-exe -e "/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9"
-    # vnv2 get-python-dict-from-exe -e "/tmp/pythonpaths.tmp3D6Ndj.json"  Todo: separate flag
-    subparser__get_python_dict_from_exe.add_argument(
+    # vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"  Todo: separate flag
+
+    group__subparser__get_python_dict_from_exe = subparser__get_python_dict_from_exe.add_mutually_exclusive_group(
+        required=False,
+    )
+    group__subparser__get_python_dict_from_exe.add_argument(
         "-e",
         "--exe",
         type=str,
-        required=True,
+        required=False,
         dest="exe",
         help="Get the `python_dict` representation of any python exe on the file system. "
-             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9',"
-             "or use `--exe` to specify a `.json` file that was created "
+             "i.e. '/film/tools/packages/cache/python/3.9.7.3/openssl-1.1.1/bin/python3.9'.",
+    )
+    group__subparser__get_python_dict_from_exe.add_argument(
+        "-j",
+        "--jsn",
+        type=str,
+        required=False,
+        dest="jsn",
+        help="Get the `python_dict` representation of any python exe on the file system. "
+             "i.e. use `--json` to specify a `.json` file that was created "
              "using `get-pythonpaths-from-preset`.",
     )
 
@@ -763,9 +781,16 @@ def main(args):
 
     if args.sub_command == "get-python-dict-from-exe":
         print "get-python-dict-from-exe"
-        result = get_python_dict_from_exe(
-            exe=args.exe,
-        )
+        if args.exe is not None:
+            print "by exe"
+            result = get_python_dict_from_exe(
+                exe=args.exe,
+            )
+        elif args.m is not None:
+            print "by json"
+            result = get_python_dict_from_exe(
+                jsn=args.jsn,
+            )
 
     if args.sub_command == "pythonpath-to-txt":
         print "pythonpath-to-txt"
