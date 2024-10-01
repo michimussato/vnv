@@ -20,6 +20,7 @@ References:
     - https://pip.pypa.io/en/stable/reference/pip_install
 """
 
+import os
 import argparse
 import logging
 import sys
@@ -59,6 +60,27 @@ _logger = logging.getLogger(__name__)
 # when using this Python module as a library.
 
 
+def install():
+    file_path = os.path.realpath(__file__)
+    try:
+        os.makedirs(os.path.join(os.path.expanduser("~"), ".local", "bin"))
+    except OSError as e:
+        _logger.debug("Directoy already exists: {e}".format(e=e))
+
+    dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv")
+
+    try:
+        os.symlink(file_path, dst)
+    except OSError as e:
+        _logger.debug("Symlink already exists: {e}".format(e=e))
+    os.chmod(dst, 0o755)
+
+
+def uninstall():
+    dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv")
+    os.remove(dst)
+
+
 # ---- CLI ----
 # The functions defined in this section are wrappers around the main Python
 # API allowing them to be called directly from the terminal as a CLI
@@ -84,6 +106,21 @@ def parse_args(args):
         description="sub-command help",
         required=True,
         dest="sub_command",
+    )
+
+    # Example
+    # python vnv/src/vnv/cli.py install
+    subparser__setup = subparsers.add_parser(
+        "install",
+        help="Writes a symlink to `~/.local/bin`.",
+    )
+
+    # Example
+    # python vnv/src/vnv/cli.py uninstall
+    # vnv2 uninstall
+    subparser__setup = subparsers.add_parser(
+        "uninstall",
+        help="Deletes the symlink in `~/.local/bin`.",
     )
 
     add_sub_parser__create_venv(subparsers)
@@ -130,6 +167,16 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
+
+    if args.sub_command == "install":
+        _logger.debug("Subcommand: install...")
+        install()
+        _logger.debug("Subcommand: install done.")
+
+    if args.sub_command == "uninstall":
+        _logger.debug("Subcommand: uninstall...")
+        uninstall()
+        _logger.debug("Subcommand: uninstall done.")
 
     if args.sub_command == "create-venv":
         _logger.debug("Subcommand: create-venv...")
