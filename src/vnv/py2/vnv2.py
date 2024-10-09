@@ -25,6 +25,10 @@ _logger = logging.getLogger(__name__)
 PYTHONS_BASE = "/film/tools/packages/python"
 
 
+EXE_VSCODE = None  # i.e. "/usr/bin/code"
+EXE_PYCHARM = None  # i.e. "/scratch/michaelmus/Applications/pycharm-current/bin/pycharm.sh"
+
+
 # setup
 # git clone
 # git checkout
@@ -48,10 +52,24 @@ def install():
         _logger.debug("Symlink already exists: {e}".format(e=e))
     os.chmod(dst, 0o755)
 
+    sys.stdout.writelines(
+        "# Result:\n"
+        "# installed: {dst}\n".format(
+            dst=dst,
+        )
+    )
+
 
 def uninstall():
     dst = os.path.join(os.path.expanduser("~"), ".local", "bin", "vnv2")
     os.remove(dst)
+
+    sys.stdout.writelines(
+        "# Result:\n"
+        "# uninstalled: {dst}\n".format(
+            dst=dst,
+        )
+    )
 
 
 def _parse_pythons():
@@ -420,9 +438,13 @@ def create_venv(
     ):
         raise Exception("Specify EITHER --python-dict OR --from-file.")
 
+    if not all([EXE_VSCODE, EXE_PYCHARM]):
+        raise Exception("Set `EXE_VSCODE` and `EXE_PYCHARM` "
+                        "before running this sub-command.")
+
     if isinstance(python_dict, str):
         python_dict = ast.literal_eval(python_dict)
-    venv = os.path.join(venv_home, venv_name)
+    venv = os.path.expanduser(os.path.join(venv_home, venv_name))
 
     if from_file is not None:
         with open(from_file, "r") as fr:
@@ -439,9 +461,9 @@ def create_venv(
         fw.write("{activate}".format(activate="source $SCRIPT_DIR/bin/activate;\n".format(venv=venv)))
         fw.write("export PYTHONUSERBASE=$(echo ${VIRTUAL_ENV});\n")
 
-    py_exe_pycharm = os.path.join(venv, "python")
+    py_exe_ide = os.path.join(venv, "python")
 
-    with open(py_exe_pycharm, "w") as fw:
+    with open(py_exe_ide, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("export LD_LIBRARY_PATH={env};\n".format(env=env["LD_LIBRARY_PATH"]))
         fw.write("export PYTHONUSERBASE=$(echo ${VIRTUAL_ENV});\n")  # Todo: necessary?
@@ -449,37 +471,38 @@ def create_venv(
         fw.write('$SCRIPT_DIR/bin/python "$@";\n')
         fw.write("exit 0\n")
 
-    os.chmod(py_exe_pycharm, 0o0744)
+    os.chmod(py_exe_ide, 0o0744)
 
     pycharm_exe = os.path.join(venv, "pycharm")
-    pycharm_sh = "/scratch/michaelmus/Applications/pycharm-current/bin/pycharm.sh"
 
     with open(pycharm_exe, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("source {activate}\n".format(activate=activate))
-        fw.write("/usr/bin/sh {pycharm_sh};\n".format(pycharm_sh=pycharm_sh))
+        fw.write("/usr/bin/sh {pycharm_sh};\n".format(pycharm_sh=EXE_PYCHARM))
         fw.write("exit 0\n")
 
     os.chmod(pycharm_exe, 0o0744)
 
     vscode_exe = os.path.join(venv, "vscode")
-    vscode_sh = "/usr/bin/code"
 
     with open(vscode_exe, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("source {activate}\n".format(activate=activate))
-        fw.write("{vscode_sh};\n".format(vscode_sh=vscode_sh))
+        fw.write("{vscode_sh};\n".format(vscode_sh=EXE_VSCODE))
         fw.write("exit 0\n")
 
     os.chmod(vscode_exe, 0o0744)
 
     sys.stdout.writelines(
         "# Result:\n"
-        "# {venv}\n"
-        # Todo: python: /home/users/michaelmus/venvs/my-new-virtualenv/python
-        # Todo: pycharm: /home/users/michaelmus/venvs/my-new-virtualenv/pycharm
-        # Todo: vscode: /home/users/michaelmus/venvs/my-new-virtualenv/vscode
+        "# venv = {venv}\n"
+        "# python = {py_exe_ide}\n"
+        "# vscode = {vscode_exe}\n"
+        "# pycharm = {pycharm_exe}\n"
         "# activate: source {activate}\n".format(
+            py_exe_ide=py_exe_ide,
+            vscode_exe=vscode_exe,
+            pycharm_exe=pycharm_exe,
             venv=venv,
             activate=activate,
         )
@@ -501,8 +524,8 @@ def pythonpath_to_txt(pythonpath):
         fw.write(os.pathsep.join(pythonpath))
 
     sys.stdout.writelines(
-        "Result:\n"
-        "{name}\n".format(name=fw.name)
+        "# Result:\n"
+        "# {name}\n".format(name=fw.name)
     )
 
     return fw.name
@@ -683,7 +706,7 @@ def parse_args(args):
     subparser__get_python_dict_from_exe.add_argument(
         "-tf",
         "--to-file",
-        type=bool,
+        # type=bool,
         required=False,
         # default=False,
         action="store_true",
@@ -868,13 +891,13 @@ def main(args):
     if args.sub_command == "get-python-dict-from-exe":
         print "get-python-dict-from-exe"
         if args.exe is not None:
-            print "by exe"
+            print "from exe"
             result = get_python_dict_from_exe(
                 exe=args.exe,
                 to_file=args.to_file,
             )
-        elif args.m is not None:
-            print "by json"
+        elif args.jsn is not None:
+            print "from json"
             result = get_python_dict_from_exe(
                 jsn=args.jsn,
                 to_file=args.to_file,
