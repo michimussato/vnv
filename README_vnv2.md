@@ -4,6 +4,7 @@
   * [Clone Repo](#clone-repo)
   * [Vanilla AL Shell](#vanilla-al-shell)
   * [Install `vnv2` (Python 2)](#install-vnv2-python-2)
+  * [Config](#config)
   * [Guides](#guides)
     * [Get PYTHONPATHs from Launcher Preset](#get-pythonpaths-from-launcher-preset)
     * [Save PYTHONPATH to Text File](#save-pythonpath-to-text-file)
@@ -97,6 +98,24 @@ subcommands:
                         single `str` and write it to file.
     create-venv         Create a `venv` based on a `python_dict` Python
                         representation (Python 3+).
+```
+
+## Config
+
+Config file is located at
+`~/.config/vnv.json`
+
+The file gets created when script is run.
+
+These settings get applied and need to be modified based
+on your environment:
+
+```json
+{
+  "EXE_PYCHARM": "/scratch/{user}/Applications/pycharm-current/bin/pycharm.sh", 
+  "EXE_VSCODE": "/usr/bin/code", 
+  "PYTHONS_BASE": "/film/tools/packages/python"
+}
 ```
 
 ## Guides

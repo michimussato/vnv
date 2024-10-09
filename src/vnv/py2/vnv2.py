@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import getpass
 import json
 import os
 import pprint
@@ -22,15 +23,17 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 
-# Todo
-#  - [ ] get from environment variable
-PYTHONS_BASE = "/film/tools/packages/python"
-
-
-# Todo
-#  - [ ] get from environment variable
-EXE_VSCODE = None  # i.e. "/usr/bin/code"
-EXE_PYCHARM = None  # i.e. "/scratch/michaelmus/Applications/pycharm-current/bin/pycharm.sh"
+try:
+    with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "r") as fr:
+        VNV_CONF = json.load(fr)
+except IOError:
+    with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "w") as fw:
+        VNV_CONF = {
+            "PYTHONS_BASE": "/film/tools/packages/python",
+            "EXE_VSCODE": "/usr/bin/code",
+            "EXE_PYCHARM": "/scratch/{user}/Applications/pycharm-current/bin/pycharm.sh".format(user=getpass.getuser()),
+        }
+        json.dump(VNV_CONF, fw, indent=2)
 
 
 # setup
@@ -78,7 +81,7 @@ def uninstall():
 
 def _parse_pythons():
 
-    packages_py = glob.glob(os.path.join(PYTHONS_BASE, "*", "package.py"))
+    packages_py = glob.glob(os.path.join(VNV_CONF["PYTHONS_BASE"], "*", "package.py"))
 
     pythons_ = []
 
@@ -120,8 +123,8 @@ def list_pythons():
             python_package["version_tuple"] = tuple([int(u) for u in python["version"].split('.')])
             for k, v in mappings.items():
                 python_package["variant"] = os.sep.join(variant).replace(k, v)  # .partition("+<")[0]
-            python_package["lib"] = os.path.join(PYTHONS_BASE, python["version"], python_package["variant"], "lib")
-            python_package["bin"] = os.path.join(PYTHONS_BASE, python["version"], python_package["variant"], "bin")
+            python_package["lib"] = os.path.join(VNV_CONF["PYTHONS_BASE"], python["version"], python_package["variant"], "lib")
+            python_package["bin"] = os.path.join(VNV_CONF["PYTHONS_BASE"], python["version"], python_package["variant"], "bin")
             python_package["exe"] = os.path.join(python_package["bin"], "python")
 
             _logger.debug("Python found: {python_package}".format(python_package=python_package))
@@ -442,7 +445,7 @@ def create_venv(
     ):
         raise Exception("Specify EITHER --python-dict OR --from-file.")
 
-    if not all([EXE_VSCODE, EXE_PYCHARM]):
+    if not all([VNV_CONF["EXE_VSCODE"], VNV_CONF["EXE_PYCHARM"]]):
         raise Exception("Set `EXE_VSCODE` and `EXE_PYCHARM` "
                         "before running this sub-command.")
 
@@ -482,7 +485,7 @@ def create_venv(
     with open(pycharm_exe, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("source {activate}\n".format(activate=activate))
-        fw.write("/usr/bin/sh {pycharm_sh};\n".format(pycharm_sh=EXE_PYCHARM))
+        fw.write("/usr/bin/sh {pycharm_sh};\n".format(pycharm_sh=VNV_CONF["EXE_PYCHARM"]))
         fw.write("exit 0\n")
 
     os.chmod(pycharm_exe, 0o0744)
@@ -492,7 +495,7 @@ def create_venv(
     with open(vscode_exe, "w") as fw:
         fw.write("#!/bin/sh\n")
         fw.write("source {activate}\n".format(activate=activate))
-        fw.write("{vscode_sh};\n".format(vscode_sh=EXE_VSCODE))
+        fw.write("{vscode_sh};\n".format(vscode_sh=VNV_CONF["EXE_VSCODE"]))
         fw.write("exit 0\n")
 
     os.chmod(vscode_exe, 0o0744)
@@ -574,7 +577,7 @@ def parse_args(args):
     subparser__list_pythons = subparsers.add_parser(
         "list-pythons",
         help="List all Python executables in `{PYTHONS_BASE}` "
-             "and present them as `python_dict`.".format(PYTHONS_BASE=PYTHONS_BASE),
+             "and present them as `python_dict`.".format(PYTHONS_BASE=VNV_CONF["PYTHONS_BASE"]),
     )
 
     # Examples
