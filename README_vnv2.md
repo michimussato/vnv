@@ -225,7 +225,7 @@ vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/
 ##### From JSON File
 
 ```shell
-vnv2 create-venv -ff "/json-file.json" -vh "~/venvs" -vn "my-new-virtualenv"
+vnv2 create-venv -ff "/tmp/tmpr5t2fv.json" -vh "~/venvs" -vn "my-new-virtualenv"
 # Result:
 # venv = ~/venvs/my-new-virtualenv
 # python = ~/venvs/my-new-virtualenv/python
