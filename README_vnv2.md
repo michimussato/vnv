@@ -112,7 +112,7 @@ on your environment:
 
 ```json
 {
-  "EXE_PYCHARM": "/scratch/{user}/Applications/pycharm-current/bin/pycharm.sh", 
+  "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh", 
   "EXE_VSCODE": "/usr/bin/code", 
   "PYTHONS_BASE": "/film/tools/packages/python"
 }

@@ -31,7 +31,7 @@ except IOError:
         VNV_CONF = {
             "PYTHONS_BASE": "/film/tools/packages/python",
             "EXE_VSCODE": "/usr/bin/code",
-            "EXE_PYCHARM": "/scratch/{user}/Applications/pycharm-current/bin/pycharm.sh".format(user=getpass.getuser()),
+            "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh",
         }
         json.dump(VNV_CONF, fw, indent=2)
 
