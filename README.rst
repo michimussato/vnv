@@ -43,6 +43,13 @@ development environments that ``venv`` s bring to the table.
 Reads /ˈvi:.en.vi/.
 
 
+vnv2
+====
+
+
+`Start here <README_vnv2.md>`_.
+
+
 .. _pyscaffold-notes:
 
 Note

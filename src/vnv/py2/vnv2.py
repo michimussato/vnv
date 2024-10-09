@@ -119,7 +119,17 @@ def list_pythons():
     return sorted(pythons_, key=lambda d: d["version_tuple"])
 
 
-def launch_python(python_dict, c=None, m=None):
+def launch_python(
+        python_dict=None,
+        from_file=None,
+        c=None,
+        m=None,
+):
+    if (
+            all([python_dict, from_file])
+            or not any([python_dict, from_file])
+    ):
+        raise Exception("Specify EITHER --python-dict OR --from-file.")
 
     if isinstance(python_dict, str):
         python_dict = ast.literal_eval(python_dict)
@@ -127,6 +137,10 @@ def launch_python(python_dict, c=None, m=None):
 
     if all([c, m]):
         raise Exception("Specify EITHER -c OR -m, not both.")
+
+    if from_file is not None:
+        with open(from_file, "r") as fr:
+            python_dict = json.load(fr)
 
     args = [
         python_dict["exe"],
@@ -337,7 +351,11 @@ with open(\"{out_json}\", "w") as fw:
         return json_out.name
 
 
-def get_python_dict_from_exe(exe=None, jsn=None):
+def get_python_dict_from_exe(
+        exe=None,
+        jsn=None,
+        to_file=False,
+):
 
     if all([exe, jsn]) or not any([exe, jsn]):
         raise Exception("Specify EITHER --exe OR --jsn, "
@@ -375,13 +393,41 @@ def get_python_dict_from_exe(exe=None, jsn=None):
         "# {match}\n".format(match=matches[0])
     )
 
+    if to_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            delete=False,
+            suffix=".json",
+        ) as fw:
+            json.dump(matches[0], fw, indent=2)
+
+        sys.stdout.writelines(
+            "# {fw}\n".format(fw=fw.name)
+        )
+
     return matches[0]
 
 
-def create_venv(python_dict, venv_home, venv_name):
+def create_venv(
+        venv_home,
+        venv_name,
+        python_dict=None,
+        from_file=None,
+):
+    if (
+            all([python_dict, from_file])
+            or not any([python_dict, from_file])
+    ):
+        raise Exception("Specify EITHER --python-dict OR --from-file.")
+
     if isinstance(python_dict, str):
         python_dict = ast.literal_eval(python_dict)
     venv = os.path.join(venv_home, venv_name)
+
+    if from_file is not None:
+        with open(from_file, "r") as fr:
+            python_dict = json.load(fr)
+
     env = launch_python(python_dict=python_dict, m="venv {venv}".format(venv=venv))
 
     activate = os.path.join(venv, "al_activate")
@@ -543,13 +589,26 @@ def parse_args(args):
              "Optionally run a package `-m` or a "
              "command `-c`.",
     )
-    subparser__launch_python.add_argument(
+    group__subparser__launch_python_dict_from = subparser__launch_python.add_mutually_exclusive_group(
+        required=True,
+    )
+    group__subparser__launch_python_dict_from.add_argument(
         "-p",
         "--python-dict",
         type=str,
-        required=True,
+        required=False,
+        default=None,
         dest="python_dict",
-        help="Python represented in `python_dict`.",
+        help="Python represented in `python_dict` as string.",
+    )
+    group__subparser__launch_python_dict_from.add_argument(
+        "-ff",
+        "--from-file",
+        type=str,
+        required=False,
+        default=None,
+        dest="from_file",
+        help="Python represented in `python_dict` from json file.",
     )
     group__subparser__launch_python = subparser__launch_python.add_mutually_exclusive_group(
         required=False,
@@ -621,6 +680,16 @@ def parse_args(args):
              "i.e. use `--json` to specify a `.json` file that was created "
              "using `get-pythonpaths-from-preset`.",
     )
+    subparser__get_python_dict_from_exe.add_argument(
+        "-tf",
+        "--to-file",
+        type=bool,
+        required=False,
+        # default=False,
+        action="store_true",
+        dest="to_file",
+        help="Write output to a temporary file."
+    )
 
     subparser__pythonpath_to_txt = subparsers.add_parser(
         "pythonpath-to-txt",
@@ -648,14 +717,28 @@ def parse_args(args):
         help="Create a `venv` based on a `python_dict` Python "
              "representation (Python 3+).",
     )
-    subparser__create_venv.add_argument(
+    group__subparser__create_venv = subparser__create_venv.add_mutually_exclusive_group(
+        required=True,
+    )
+    group__subparser__create_venv.add_argument(
         "-p",
         "--python-dict",
-        required=True,
+        required=False,
+        default=None,
         type=str,
         dest="python_dict",
         help="The Python interpreter represented as "
-             "`python_dict`.",
+             "`python_dict` as string.",
+    )
+    group__subparser__create_venv.add_argument(
+        "-ff",
+        "--from-file",
+        required=False,
+        type=str,
+        dest="from_file",
+        default=None,
+        help="The Python interpreter represented as "
+             "`python_dict` from json file.",
     )
     subparser__create_venv.add_argument(
         "-vh",
@@ -759,17 +842,20 @@ def main(args):
         ):
             launch_python(
                 python_dict=args.python_dict,
+                from_file=args.from_file,
             )
 
         else:
             if args.c is not None:
                 launch_python(
                     python_dict=args.python_dict,
+                    from_file=args.from_file,
                     c=args.c,
                 )
             elif args.m is not None:
                 launch_python(
                     python_dict=args.python_dict,
+                    from_file=args.from_file,
                     m=args.m
                 )
 
@@ -785,11 +871,13 @@ def main(args):
             print "by exe"
             result = get_python_dict_from_exe(
                 exe=args.exe,
+                to_file=args.to_file,
             )
         elif args.m is not None:
             print "by json"
             result = get_python_dict_from_exe(
                 jsn=args.jsn,
+                to_file=args.to_file,
             )
 
     if args.sub_command == "pythonpath-to-txt":
@@ -802,6 +890,7 @@ def main(args):
         print "create-venv"
         result = create_venv(
             python_dict=args.python_dict,
+            from_file=args.from_file,
             venv_home=args.venv_home,
             venv_name=args.venv_name,
         )

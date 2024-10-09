@@ -10,8 +10,12 @@
     * [Get `python_dict` from Executable or JSON File](#get-python_dict-from-executable-or-json-file)
     * [Launch Python](#launch-python)
       * [Interactive Shell](#interactive-shell)
+        * [From `python_dict`](#from-python_dict)
+        * [From JSON File](#from-json-file)
     * [`venv`](#venv)
       * [Create `venv`](#create-venv)
+        * [From `python_dict`](#from-python_dict-1)
+        * [From JSON File](#from-json-file-1)
       * [Activate `venv`](#activate-venv)
       * [PIP](#pip)
         * [Upgrade PIP](#upgrade-pip)
@@ -36,7 +40,7 @@ A wrapper that is Python 2 (`vnv2`) compatible to create
 
 ## Clone Repo
 
-```
+```shell
 git clone https://github.com/michimussato/vnv.git
 cd vnv
 git checkout al-vnv
@@ -44,18 +48,19 @@ git checkout al-vnv
 
 ## Vanilla AL Shell
 
-```
-$ which python
+```shell
+which python
 /usr/bin/python
 ```
 
 ## Install `vnv2` (Python 2)
 
-```
+```shell
 python src/vnv/py2/vnv2.py install
 ```
 
-```
+```shell
+# Todo: [ ] update
 vnv2 --help
 usage: vnv2.py [-h] [-v] [-vv]
                {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
@@ -95,21 +100,21 @@ subcommands:
 
 ### Get PYTHONPATHs from Launcher Preset
 
-```
+```shell
 vnv2 get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
 # Result: /tmp/pythonpaths.tmp3D6Ndj.json
 ```
 
 ### Save PYTHONPATH to Text File
 
-```
+```shell
 vnv2 pythonpath-to-txt -p /tmp/pythonpaths.tmp3D6Ndj.json
 # Result: /tmp/pythonpath.wMXPGW.txt
 ```
 
 ### Get `python_dict` from Executable or JSON File
 
-```
+```shell
 vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
 # Result: {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
 ```
@@ -118,8 +123,22 @@ vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
 
 #### Interactive Shell
 
-```
+##### From `python_dict`
+
+```shell
 vnv2 launch-python -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}"
+# Result
+# Python 3.9.7 (default, Aug  9 2024, 12:30:35) 
+# [GCC 6.3.1 20170216 (Red Hat 6.3.1-3)] on linux
+# Type "help", "copyright", "credits" or "license" for more information.
+# >>>
+```
+
+##### From JSON File
+
+```shell
+# Todo: [ ] verify that this works
+vnv2 launch-python -ff "/json-file.json"
 # Result
 # Python 3.9.7 (default, Aug  9 2024, 12:30:35) 
 # [GCC 6.3.1 20170216 (Red Hat 6.3.1-3)] on linux
@@ -131,17 +150,33 @@ vnv2 launch-python -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.
 
 #### Create `venv`
 
+```shell
+# Todo: [ ] write all tmp files to the venv folder too
 ```
-vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}" -vh "/home/users/michaelmus/venvs" -vn "my-new-virtualenv"
+
+##### From `python_dict`
+
+```shell
+vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}" -vh "~/venvs" -vn "my-new-virtualenv"
 # Result:
-# /home/users/michaelmus/venvs/my-new-virtualenv
-# activate: source /home/users/michaelmus/venvs/my-new-virtualenv/al_activate
+# ~/venvs/my-new-virtualenv
+# activate: source ~/venvs/my-new-virtualenv/al_activate
+```
+
+##### From JSON File
+
+```shell
+# Todo: [ ] verify that this works
+vnv2 create-venv -ff "/json-file.json" -vh "~/venvs" -vn "my-new-virtualenv"
+# Result:
+# ~/venvs/my-new-virtualenv
+# activate: source ~/venvs/my-new-virtualenv/al_activate
 ```
 
 #### Activate `venv`
 
-```
-source /home/users/michaelmus/venvs/my-new-virtualenv/al_activate
+```shell
+source ~/venvs/my-new-virtualenv/al_activate
 # Result: (my-new-virtualenv) michaelmus@sy1wse0076:~/test/vnv (al-vnv)$
 ```
 
@@ -149,7 +184,7 @@ source /home/users/michaelmus/venvs/my-new-virtualenv/al_activate
 
 ##### Upgrade PIP
 
-```
+```shell
 python -m pip install --upgrade pip
 pip install wheel wheel-filename
 pip install six marshmallow requests future brotli numpy distro simplejson
@@ -157,7 +192,7 @@ pip install six marshmallow requests future brotli numpy distro simplejson
 
 ##### Install `vnv` (Python 3)
 
-```
+```shell
 pushd $(dirname $(dirname $(dirname $(dirname $(readlink $(which vnv2))))))
 pip install -e .
 popd
@@ -165,7 +200,7 @@ popd
 
 ##### Install AL Packages
 
-```
+```shell
 python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.wMXPGW.txt
 ```
 
@@ -176,27 +211,20 @@ python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.wMXPGW.txt
 Specify this interpreter as default interpreter
 in your IDE:
 
-```
-/home/users/michaelmus/venvs/my-new-virtualenv/python
-```
+`~/venvs/my-new-virtualenv/python`
 
 ##### Launch Scripts 
 
 ###### PyCharm
 
-```
-/home/users/michaelmus/venvs/my-new-virtualenv/pycharm
-```
+`~/venvs/my-new-virtualenv/pycharm`
 
 ###### VsCode
 
-```
-/home/users/michaelmus/venvs/my-new-virtualenv/vscode
-```
+`~/venvs/my-new-virtualenv/vscode`
 
 #### Deactivate `venv`
 
-```
+```shell
 deactivate
 ```
-
