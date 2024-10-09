@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import getpass
 import json
 import os
 import pprint
@@ -23,21 +22,26 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 
-try:
-    with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "r") as fr:
-        VNV_CONF = json.load(fr)
-        _logger.debug("Config file loaded.")
-except IOError:
-    with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "w") as fw:
-        VNV_CONF = {
-            "PYTHONS_BASE": "/film/tools/packages/python",
-            "EXE_VSCODE": "/usr/bin/code",
-            "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh",
-        }
-        json.dump(VNV_CONF, fw, indent=2)
-        _logger.debug("Config file written.")
+def get_config():
+    global VNV_CONF
+    try:
+        with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "r") as fr:
+            VNV_CONF = json.load(fr)
+            _logger.debug("Config file loaded.")
+    except IOError:
+        with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "w") as fw:
+            VNV_CONF = {
+                "PYTHONS_BASE": "/film/tools/packages/python",
+                "EXE_VSCODE": "/usr/bin/code",
+                "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh",
+            }
+            json.dump(VNV_CONF, fw, indent=2)
+            _logger.debug("Config file written.")
 
-_logger.debug("Settings:\n{vnv_conf}".format(vnv_conf=VNV_CONF))
+    _logger.debug("Settings:\n{vnv_conf}".format(vnv_conf=VNV_CONF))
+
+
+get_config()
 
 
 # setup
@@ -79,6 +83,16 @@ def uninstall():
         "# Result:\n"
         "# uninstalled: {dst}\n".format(
             dst=dst,
+        )
+    )
+
+
+def config():
+
+    sys.stdout.writelines(
+        "# Result:\n"
+        "# Config:\n{vnv_conf}\n".format(
+            vnv_conf=json.dumps(VNV_CONF, indent=2),
         )
     )
 
@@ -578,6 +592,14 @@ def parse_args(args):
         help="Deletes the symlink in `~/.local/bin`.",
     )
 
+    # Example
+    # python /home/users/michaelmus/git/repos/vnv/src/vnv/py2/vnv2.py uninstall
+    # vnv2 uninstall
+    subparser__setup = subparsers.add_parser(
+        "config",
+        help="Displays `vnv` config from `~/.config/vnv.json`.",
+    )
+
     subparser__list_pythons = subparsers.add_parser(
         "list-pythons",
         help="List all Python executables in `{PYTHONS_BASE}` "
@@ -851,6 +873,10 @@ def main(args):
     if args.sub_command == "uninstall":
         print "uninstall"
         uninstall()
+
+    if args.sub_command == "config":
+        print "config"
+        config()
 
     if args.sub_command == "list-pythons":
         print "list-pythons"

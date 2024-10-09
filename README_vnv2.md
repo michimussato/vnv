@@ -67,7 +67,7 @@ python src/vnv/py2/vnv2.py install
 vnv2 --help
 usage: vnv2 [-h] [-v] [-vv]
             
-            {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
+            {install,uninstall,config,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
             ...
 
 optional arguments:
@@ -78,9 +78,10 @@ optional arguments:
 subcommands:
   sub-command help
 
-  {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
+  {install,uninstall,config,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
     install             Writes a symlink to `~/.local/bin`.
     uninstall           Deletes the symlink in `~/.local/bin`.
+    config              Displays `vnv` config from `~/.config/vnv.json`.
     list-pythons        List all Python executables in
                         `/film/tools/packages/python` and present them as
                         `python_dict`.
@@ -118,6 +119,18 @@ on your environment:
 }
 ```
 
+```shell
+vnv2 config
+config
+# Result:
+# Config:
+{
+  "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh", 
+  "EXE_VSCODE": "/usr/bin/code", 
+  "PYTHONS_BASE": "/film/tools/packages/python"
+}
+```
+
 ## Guides
 
 ### Get PYTHONPATHs from Launcher Preset
@@ -132,7 +145,7 @@ vnv2 get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_perf
 ### Save PYTHONPATH to Text File
 
 ```shell
-vnv2 pythonpath-to-txt -p /tmp/pythonpaths.tmp3D6Ndj.json
+vnv2 pythonpath-to-txt -p "/tmp/pythonpaths.tmp3D6Ndj.json"
 # Result: 
 # /tmp/pythonpath.wMXPGW.txt
 ```
