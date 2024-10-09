@@ -121,7 +121,6 @@ on your environment:
 
 ```shell
 vnv2 config
-config
 # Result:
 # Config:
 {
