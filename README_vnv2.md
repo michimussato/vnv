@@ -8,6 +8,9 @@
     * [Get PYTHONPATHs from Launcher Preset](#get-pythonpaths-from-launcher-preset)
     * [Save PYTHONPATH to Text File](#save-pythonpath-to-text-file)
     * [Get `python_dict` from Executable or JSON File](#get-python_dict-from-executable-or-json-file)
+      * [--exe](#--exe)
+      * [--jsn](#--jsn)
+      * [--to-file](#--to-file)
     * [Launch Python](#launch-python)
       * [Interactive Shell](#interactive-shell)
         * [From `python_dict`](#from-python_dict)
@@ -60,11 +63,11 @@ python src/vnv/py2/vnv2.py install
 ```
 
 ```shell
-# Todo: [ ] update
 vnv2 --help
-usage: vnv2.py [-h] [-v] [-vv]
-               {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
-               ...
+usage: vnv2 [-h] [-v] [-vv]
+            
+            {install,uninstall,list-pythons,filter-versions,launch-python,get-pythonpaths-from-preset,get-python-dict-from-exe,pythonpath-to-txt,create-venv}
+            ...
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -102,21 +105,44 @@ subcommands:
 
 ```shell
 vnv2 get-pythonpaths-from-preset -p "/toolsets/personal/michaelmus/012_Maya_performance_production"
-# Result: /tmp/pythonpaths.tmp3D6Ndj.json
+# Result:
+# cmd = ['rez', 'env', 'launcher2CL', '-c', '$LAUNCH_EXE -l shell -p /toolsets/personal/michaelmus/012_Maya_performance_production -c "python /tmp/tmpxfDIlC.py"']
+# /tmp/pythonpaths.tmp3D6Ndj.json
 ```
 
 ### Save PYTHONPATH to Text File
 
 ```shell
 vnv2 pythonpath-to-txt -p /tmp/pythonpaths.tmp3D6Ndj.json
-# Result: /tmp/pythonpath.wMXPGW.txt
+# Result: 
+# /tmp/pythonpath.wMXPGW.txt
 ```
 
 ### Get `python_dict` from Executable or JSON File
 
+#### --exe
+
+```shell
+vnv2 get-python-dict-from-exe -e "/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python"
+# Result: 
+# {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
+```
+
+#### --jsn
+
 ```shell
 vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
-# Result: {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
+# Result: 
+# {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
+```
+
+#### --to-file
+
+```shell
+...
+# Result:
+# {'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}
+# /tmp/tmpr5t2fv.json
 ```
 
 ### Launch Python
@@ -127,7 +153,6 @@ vnv2 get-python-dict-from-exe -j "/tmp/pythonpaths.tmp3D6Ndj.json"
 
 ```shell
 vnv2 launch-python -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}"
-# Result
 # Python 3.9.7 (default, Aug  9 2024, 12:30:35) 
 # [GCC 6.3.1 20170216 (Red Hat 6.3.1-3)] on linux
 # Type "help", "copyright", "credits" or "license" for more information.
@@ -137,9 +162,7 @@ vnv2 launch-python -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.
 ##### From JSON File
 
 ```shell
-# Todo: [ ] verify that this works
-vnv2 launch-python -ff "/json-file.json"
-# Result
+vnv2 launch-python -ff "/tmp/tmpr5t2fv.json"
 # Python 3.9.7 (default, Aug  9 2024, 12:30:35) 
 # [GCC 6.3.1 20170216 (Red Hat 6.3.1-3)] on linux
 # Type "help", "copyright", "credits" or "license" for more information.
@@ -150,34 +173,42 @@ vnv2 launch-python -ff "/json-file.json"
 
 #### Create `venv`
 
-```shell
-# Todo: [ ] write all tmp files to the venv folder too
-```
+Note: Set `EXE_VSCODE` and `EXE_PYCHARM` in `vnv2.py` accordingly
+before executing `create-venv`.
+
+Todo: 
+- [ ] write all tmp files to the venv folder too
 
 ##### From `python_dict`
 
 ```shell
 vnv2 create-venv -p "{'bin': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin', 'version_tuple': (3, 9, 7, 3), 'exe': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/bin/python', 'lib': '/film/tools/packages/python/3.9.7.3/openssl-1.1.1/lib', 'variant': 'openssl-1.1.1', 'version': '3.9.7.3'}" -vh "~/venvs" -vn "my-new-virtualenv"
 # Result:
-# ~/venvs/my-new-virtualenv
+# venv = ~/venvs/my-new-virtualenv
+# python = ~/venvs/my-new-virtualenv/python
+# vscode = ~/venvs/my-new-virtualenv/vscode
+# pycharm = ~/venvs/my-new-virtualenv/pycharm
 # activate: source ~/venvs/my-new-virtualenv/al_activate
 ```
 
 ##### From JSON File
 
 ```shell
-# Todo: [ ] verify that this works
 vnv2 create-venv -ff "/json-file.json" -vh "~/venvs" -vn "my-new-virtualenv"
 # Result:
-# ~/venvs/my-new-virtualenv
-# activate: source ~/venvs/my-new-virtualenv/al_activate
+# venv = ~/venvs/my-new-virtualenv
+# python = ~/venvs/my-new-virtualenv/python
+# vscode = ~/venvs/my-new-virtualenv/vscode
+# pycharm = ~/venvs/my-new-virtualenv/pycharm
+# activate: source ~/my-new-virtualenv/al_activate
 ```
 
 #### Activate `venv`
 
 ```shell
 source ~/venvs/my-new-virtualenv/al_activate
-# Result: (my-new-virtualenv) michaelmus@sy1wse0076:~/test/vnv (al-vnv)$
+# Result: 
+# (my-new-virtualenv) michaelmus@sy1wse0076:vnv (al-vnv)$
 ```
 
 #### PIP
@@ -201,7 +232,7 @@ popd
 ##### Install AL Packages
 
 ```shell
-python src/vnv/pip_install_al.py --serial --from-file /tmp/pythonpath.wMXPGW.txt
+python src/vnv/pip_install_al.py --serial --from-file "/tmp/pythonpath.wMXPGW.txt"
 ```
 
 #### IDE

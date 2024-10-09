@@ -22,9 +22,13 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 
+# Todo
+#  - [ ] get from environment variable
 PYTHONS_BASE = "/film/tools/packages/python"
 
 
+# Todo
+#  - [ ] get from environment variable
 EXE_VSCODE = None  # i.e. "/usr/bin/code"
 EXE_PYCHARM = None  # i.e. "/scratch/michaelmus/Applications/pycharm-current/bin/pycharm.sh"
 
@@ -499,7 +503,7 @@ def create_venv(
         "# python = {py_exe_ide}\n"
         "# vscode = {vscode_exe}\n"
         "# pycharm = {pycharm_exe}\n"
-        "# activate: source {activate}\n".format(
+        "# activate: `source {activate}`\n".format(
             py_exe_ide=py_exe_ide,
             vscode_exe=vscode_exe,
             pycharm_exe=pycharm_exe,
