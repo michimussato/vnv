@@ -26,6 +26,7 @@ _logger = logging.getLogger(__name__)
 try:
     with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "r") as fr:
         VNV_CONF = json.load(fr)
+        _logger.debug("Config file loaded.")
 except IOError:
     with open(os.path.expanduser(os.path.join("~", ".config", "vnv.json")), "w") as fw:
         VNV_CONF = {
@@ -34,6 +35,9 @@ except IOError:
             "EXE_PYCHARM": "/opt/pycharm-community-2020.1.1/bin/pycharm.sh",
         }
         json.dump(VNV_CONF, fw, indent=2)
+        _logger.debug("Config file written.")
+
+_logger.debug("Settings:\n{vnv_conf}".format(vnv_conf=VNV_CONF))
 
 
 # setup
